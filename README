@@ -1,0 +1,9 @@
+
+
+
+Compile Commands
+----------------
+
+  $ swig -python prbs.i
+  $ gcc -c prbs.c prbs_wrap.c -I/usr/include/python2.7 -fPIC
+  $ ld -shared prbs.o prbs_wrap.o -o _prbs.so
