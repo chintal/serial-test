@@ -1,9 +1,20 @@
 
-
+PRBS Compile and Usage
+======================
 
 Compile Commands
 ----------------
 
-  $ swig -python prbs.i
-  $ gcc -c prbs.c prbs_wrap.c -I/usr/include/python2.7 -fPIC
-  $ ld -shared prbs.o prbs_wrap.o -o _prbs.so
+    $ cd src
+    $ swig -python prbs.i
+    $ gcc -c prbs.c prbs_wrap.c -I/usr/include/python2.7 -fPIC
+    $ ld -shared prbs.o prbs_wrap.o -o ../_prbs.so
+
+Usage Example
+-------------
+
+    >>> import _prbs
+    >>> prbs = _prbs.new_lfsr16_t()
+    >>> _prbs.lfsr_vInit(prbs, int(_prbs.LFSR_DEFAULT_SEED), int(_prbs.LFSR_DEFAULT_TAPS))
+    >>> while(1):
+    ...     print _prbs.lfsr_cGetNextByte(prbs)
