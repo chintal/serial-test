@@ -1,9 +1,27 @@
+# Copyright (c)
+# (c) 2015-16 Chintalagiri Shashank, Quazar Technologies Pvt. Ltd.
+#
+# This file is part of serial-test.
+#
+# serial-test is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# serial-test is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with serial-test.  If not, see <http://www.gnu.org/licenses/>.
+
 """
-This file is part of serial-test
-See the COPYING, README, and INSTALL files for more information
+Simple serial communications testing script
 """
 
 
+import argparse
 import serial
 import threading
 import time
@@ -64,7 +82,7 @@ def init_prbs():
     return
 
 
-def begin_ber_test(layer2):
+def begin_prbs_test(layer2):
     global recieved_bytes
     global error_bytes
     global prbs
@@ -90,16 +108,16 @@ def begin_ber_test(layer2):
         expected_char = _prbs.lfsr_cGetNextByte(prbs)
 
 
-def begin_throughput_test(layer2):
+def begin_throughput_test(layer2, cmd):
     global recieved_bytes
     global error_bytes
-    layer2.write('a')
+    layer2.write(cmd)
     expected_char = ord('0')
     sync = 0
     print "Waiting for Sync"
     while not sync:
         char = layer2.read()
-        if char == 'a':
+        if char == cmd:
             sync = 1
             print "Synced"
     global next_update
@@ -117,7 +135,16 @@ def begin_throughput_test(layer2):
 
 
 if __name__ == '__main__':
-    ser = serial.Serial('/dev/ttyACM1', baudrate=256000, timeout=1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--port', default='/dev/ttyACM1',
+                        help="Serial Port",)
+    parser.add_argument('-b', '--baudrate', default=256000, type=int,
+                        help="Baud Rate. Not applicable to USB CDC links")
+    parser.add_argument('test', choices=['baremetal', 'throughput',
+                                         'prbs'],
+                        default='prbs', help='Type of test to run')
+    args = parser.parse_args()
+    ser = serial.Serial(args.port, baudrate=args.baudrate, timeout=1)
     ser.flushInput()
     ser.flushOutput()
     i = 0
@@ -126,4 +153,11 @@ if __name__ == '__main__':
         drain = ser.read()
         i += 1
     print "Drained {0} bytes".format(i)
-    begin_throughput_test(ser)
+    if args.test == 'prbs':
+        begin_prbs_test(ser)
+    elif args.test == 'throughput':
+        begin_throughput_test(ser, 'a')
+    elif args.test == 'baremetal':
+        begin_throughput_test(ser, 'c')
+    else:
+        print "{0} test is not implemented".format(args.test)
