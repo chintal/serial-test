@@ -1,31 +1,27 @@
 
-Script for Basic Serial Communications Testing
-##############################################
+# Script for Basic Serial Communications Testing #
+
 
 This script is intended for basic testing of serial links to embedded
 systems over RS-232/UART/USB-CDC.
 
-Running the Test
-================
+## Running the Test ##
 
 $ python serial-test.py -h
 
-Baremetal Test
---------------
+### Baremetal Test ###
 
 Test for actual hardware link thoughput by elimination all possible
 firmware bottlenecks.
 
-Throughput Test
----------------
+### Throughput Test ###
 
 Similar to the Baremetal Test, but measure effective throughput using
 whatever firmware architecture exists for link management, including
 whatever buffering method exists. This does not include any higher
 level protocol overhead.
 
-PRBS Test
----------
+### PRBS Test ###
 
 Similar to the throughput test, but uses a PRBS instead of a simply
 incrementing byte value. While this is theoretically a 'better' test,
@@ -34,8 +30,7 @@ links. The actual generation of the PRBS, however, does take finite
 time and has been found to be a limiting step on the firmware side,
 making it unsuitable for testing throughput capability.
 
-Protocol Tests
---------------
+### Protocol Tests ###
 
 (NOT YET IMPLEMENTED)
 
@@ -43,8 +38,7 @@ Test for throughput including higher level protocol overhead. This is
 not currently implemented.
 
 
-PRBS Compile and Usage
-======================
+## PRBS Compile and Usage ##
 
 This script requires a simple C PRBS library to generate pseudo random
 bitstreams. A version of the library of the library is bundled here for
@@ -59,16 +53,14 @@ The bundled `prbs` library allows the generation of pseudo random bitstream
 for testing. This library must be compiled and converted to an importable
 python library using swig in order to function.
 
-Compile Commands
-----------------
+### Compile Commands ###
 
     $ cd src
     $ swig -python prbs.i
     $ gcc -c prbs.c prbs_wrap.c -I/usr/include/python2.7 -fPIC
     $ ld -shared prbs.o prbs_wrap.o -o ../_prbs.so
 
-Basic Usage Example
--------------------
+### Basic Usage Example ###
 
     >>> import _prbs
     >>> prbs = _prbs.new_lfsr16_t()
@@ -77,7 +69,6 @@ Basic Usage Example
     ...     print _prbs.lfsr_cGetNextByte(prbs)
 
 
-Firmware Preparation
-====================
+## Firmware Preparation ##
 
 TBD
