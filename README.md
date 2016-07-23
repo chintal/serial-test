@@ -40,6 +40,8 @@ not currently implemented.
 
 ## PRBS Compile and Usage ##
 
+(PRBS no longer bundled here. Doc TBD)
+
 This script requires a simple C PRBS library to generate pseudo random
 bitstreams. A version of the library of the library is bundled here for
 convenience. The same library in a form compatible with `cmake` and for
@@ -63,7 +65,7 @@ python library using swig in order to function.
 ### Basic Usage Example ###
 
     >>> import _prbs
-    >>> prbs = _prbs.new_lfsr16_t()
+    >>> prbs = _prbs.lfsr16_t()
     >>> _prbs.lfsr_vInit(prbs, int(_prbs.LFSR_DEFAULT_SEED), int(_prbs.LFSR_DEFAULT_TAPS))
     >>> while(1):
     ...     print _prbs.lfsr_cGetNextByte(prbs)
