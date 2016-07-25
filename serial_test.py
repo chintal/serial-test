@@ -203,6 +203,25 @@ def begin_roundtrip_test(layer2, cmd):
             sidx = 0
 
 
+def begin_modbus_test(layer2):
+    # layer2.write(chr(0x01))
+    # layer2.write(chr(0x04))
+    # layer2.write(chr(0x00))
+    # layer2.write(chr(0x00))
+    # layer2.write(chr(0x00))
+    # layer2.write(chr(0x01))
+    # layer2.write(chr(0x31))
+    # layer2.write(chr(0xCA))
+
+    layer2.write(chr(0x05))
+    layer2.write(chr(0x06))
+    layer2.write(chr(0x00))
+    layer2.write(chr(0x04))
+    layer2.write(chr(0x01))
+    layer2.write(chr(0x01))
+    layer2.write(chr(0x09))
+    layer2.write(chr(0xDF))
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--port', default='/dev/ttyACM1',
@@ -210,7 +229,8 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--baudrate', default=256000, type=int,
                         help="Baud Rate. Not applicable to USB CDC links")
     parser.add_argument('test', choices=['baremetal', 'throughput',
-                                         'prbs', 'roundtrip', 'chunkedtrip'],
+                                         'prbs', 'roundtrip', 'chunkedtrip',
+                                         'modbus'],
                         default='prbs', help='Type of test to run')
     args = parser.parse_args()
     ser = serial.Serial(args.port, baudrate=args.baudrate, timeout=None)
@@ -234,5 +254,7 @@ if __name__ == '__main__':
         begin_roundtrip_test(ser, 'd')
     elif args.test == 'chunkedtrip':
         begin_roundtrip_test(ser, 'e')
+    elif args.test == 'modbus':
+        begin_modbus_test(ser)
     else:
         print "{0} test is not implemented".format(args.test)
