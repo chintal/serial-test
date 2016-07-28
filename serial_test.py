@@ -30,7 +30,7 @@ import os
 import sys
 import pytest
 
-MODBUS_TESTS_FOLDER = "/home/chintal/code/workspaces/kdevelop/ebs/components/libmodbus/scaffold/tests/software/"
+LIBMODBUS_FOLDER = "../../components/libmodbus/"
 
 lprbs = None
 recieved_bytes = 0
@@ -216,7 +216,7 @@ def begin_modbus_test(port, baud, slaveaddress):
     # layer2.write(chr(0x01))
     # layer2.write(chr(0x09))
     # layer2.write(chr(0xDF))
-    os.chdir(MODBUS_TESTS_FOLDER)
+    os.chdir(os.path.join(LIBMODBUS_FOLDER, 'scaffold', 'tests', 'software'))
     port = os.path.relpath(port, '/dev')
     pytest.main(['-v', '--baud', baud, '--saddr', slaveaddress, '--port', port])
 
