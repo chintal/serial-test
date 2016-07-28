@@ -26,7 +26,11 @@ import threading
 import time
 import datetime
 import prbs
+import os
+import sys
+import pytest
 
+MODBUS_TESTS_FOLDER = "/home/chintal/code/workspaces/kdevelop/ebs/components/libmodbus/scaffold/tests/software/"
 
 lprbs = None
 recieved_bytes = 0
@@ -203,15 +207,18 @@ def begin_roundtrip_test(layer2, cmd):
             sidx = 0
 
 
-def begin_modbus_test(layer2):
-    layer2.write(chr(0x05))
-    layer2.write(chr(0x06))
-    layer2.write(chr(0x00))
-    layer2.write(chr(0x04))
-    layer2.write(chr(0x01))
-    layer2.write(chr(0x01))
-    layer2.write(chr(0x09))
-    layer2.write(chr(0xDF))
+def begin_modbus_test(port, baud, slaveaddress):
+    # layer2.write(chr(0x05))
+    # layer2.write(chr(0x06))
+    # layer2.write(chr(0x00))
+    # layer2.write(chr(0x04))
+    # layer2.write(chr(0x01))
+    # layer2.write(chr(0x01))
+    # layer2.write(chr(0x09))
+    # layer2.write(chr(0xDF))
+    os.chdir(MODBUS_TESTS_FOLDER)
+    port = os.path.relpath(port, '/dev')
+    pytest.main(['-v', '--baud', baud, '--saddr', slaveaddress, '--port', port])
 
 
 if __name__ == '__main__':
@@ -225,6 +232,9 @@ if __name__ == '__main__':
                                          'modbus'],
                         default='prbs', help='Type of test to run')
     args = parser.parse_args()
+    if args.test == 'modbus':
+        begin_modbus_test(args.port, args.baudrate, 5)
+        sys.exit(0)
     ser = serial.Serial(args.port, baudrate=args.baudrate, timeout=None)
     ser.flushInput()
     ser.flushOutput()
@@ -246,7 +256,5 @@ if __name__ == '__main__':
         begin_roundtrip_test(ser, 'd')
     elif args.test == 'chunkedtrip':
         begin_roundtrip_test(ser, 'e')
-    elif args.test == 'modbus':
-        begin_modbus_test(ser)
     else:
         print "{0} test is not implemented".format(args.test)
