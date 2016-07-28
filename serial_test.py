@@ -204,15 +204,6 @@ def begin_roundtrip_test(layer2, cmd):
 
 
 def begin_modbus_test(layer2):
-    # layer2.write(chr(0x01))
-    # layer2.write(chr(0x04))
-    # layer2.write(chr(0x00))
-    # layer2.write(chr(0x00))
-    # layer2.write(chr(0x00))
-    # layer2.write(chr(0x01))
-    # layer2.write(chr(0x31))
-    # layer2.write(chr(0xCA))
-
     layer2.write(chr(0x05))
     layer2.write(chr(0x06))
     layer2.write(chr(0x00))
@@ -221,6 +212,7 @@ def begin_modbus_test(layer2):
     layer2.write(chr(0x01))
     layer2.write(chr(0x09))
     layer2.write(chr(0xDF))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

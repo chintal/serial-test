@@ -11,7 +11,7 @@ $ python serial-test.py -h
 
 ### Baremetal Test ###
 
-Test for actual hardware link thoughput by elimination all possible
+Test for actual hardware link thoughput by eliminating all possible
 firmware bottlenecks.
 
 ### Throughput Test ###
@@ -38,38 +38,14 @@ Test for throughput including higher level protocol overhead. This is
 not currently implemented.
 
 
-## PRBS Compile and Usage ##
+## Dependencies ##
 
-(PRBS no longer bundled here. Doc TBD)
+### PRBS (ebs-lib-prbs) ###
 
 This script requires a simple C PRBS library to generate pseudo random
-bitstreams. A version of the library of the library is bundled here for
-convenience. The same library in a form compatible with `cmake` and for
-static linkage with embedded code can be found at
-https://github.com/chintal/ebs-lib-prbs . If that library is to be used
-instead, all references to `_prbs` in the script should be changed to
-`prbs` instead, and the host build of ebs-lib-prbs should be used to
-install the library to your python environment.
-
-The bundled `prbs` library allows the generation of pseudo random bitstream
-for testing. This library must be compiled and converted to an importable
-python library using swig in order to function.
-
-### Compile Commands ###
-
-    $ cd src
-    $ swig -python prbs.i
-    $ gcc -c prbs.c prbs_wrap.c -I/usr/include/python2.7 -fPIC
-    $ ld -shared prbs.o prbs_wrap.o -o ../_prbs.so
-
-### Basic Usage Example ###
-
-    >>> import _prbs
-    >>> prbs = _prbs.lfsr16_t()
-    >>> _prbs.lfsr_vInit(prbs, int(_prbs.LFSR_DEFAULT_SEED), int(_prbs.LFSR_DEFAULT_TAPS))
-    >>> while(1):
-    ...     print _prbs.lfsr_cGetNextByte(prbs)
-
+bitstreams. This same library in a form compatible with `cmake` and for
+static linkage with embedded code can be found on
+[github](https://github.com/chintal/ebs-lib-prbs).
 
 ## Firmware Preparation ##
 
