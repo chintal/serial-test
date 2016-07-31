@@ -30,7 +30,7 @@ import os
 import sys
 import pytest
 
-LIBMODBUS_FOLDER = "../../components/libmodbus/"
+LIBMODBUS_FOLDER = "../../../components/libmodbus/"
 
 lprbs = None
 recieved_bytes = 0
