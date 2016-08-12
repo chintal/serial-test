@@ -19,43 +19,18 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
-#ifndef UART_HANDLERS_H
-#define UART_HANDLERS_H
+#include "application.h"
+#include "application_handlers.h"
+#include "hal_uc_timer.h"
 
 
-#include "hal_uc_uart.h"
+volatile uint8_t __timer_handler_inclusion;
 
-extern volatile uint8_t __uart_handler_inclusion;
-
-/**
- * @name UART Interrupt Handlers
- */
-/**@{*/ 
-#if uC_UART0_ENABLED
-
-/**
- * @brief UART0 interrupt handler
- * 
- * Interrupt handler function for UART0.
- * 
- * This function dispatches interrupts to the correct handler function. This will
- * usually not need to be changed.  
- * 
- */
-void _uart0_irqhandler(void);
+#if uC_TIMER1_ENABLED
+__attribute__((interrupt(uC_TIMER1_PRIMARY_VECTOR)))
+void _timer1_primary_irqhandler(void){
+    uC_TIMER1_TOP_IRQ_HANDLER();
+}
 #endif
 
-#if uC_UART1_ENABLED
-/**
- * @brief UART1 interrupt handler
- * 
- * Interrupt handler function for UART1.
- * 
- * This function dispatches interrupts to the correct handler function. This will
- * usually not need to be changed.  
- * 
- */
-void _uart1_irqhandler(void);
-#endif
-/**@}*/ 
-#endif
+

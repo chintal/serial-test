@@ -1,9 +1,9 @@
 /* 
-   Copyright 2015 Quazar Technologies Pvt. Ltd.
-   Copyright 2015 Chintalagiri Shashank
+   Copyright (c) 
+     (c) 2015-2016 Chintalagiri Shashank, Quazar Technologies Pvt. Ltd.
    
    This file is part of
-   Embedded bootstraps : peripheral usage maps
+   Embedded bootstraps : uC Support Package
    
    This library is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as published
@@ -21,24 +21,17 @@
 
 /**
  * @file uc_pum.h
- * @brief Highest level include for firmware uC configuration parmeters.
+ * @brief Highest level include for uC configuration parmeters.
  *
  * This file, and the file hierarchy that it includes, should define
- * all the parameters necessary for configuring the modules present 
- * within `hal_uc`. This hierarchy should not possess any functional 
- * code within itself, and is to be used only as an in-code configuration
- * store. It should only add preprocessor files and definitions and 
- * should not create any libraries.
+ * all available capabilities of the uC, independent of the board and 
+ * the application. 
  * 
- * The lower level files in this hierarchy should not be included 
- * separately, and the information present in them should be accessed
- * only though this file.
+ * This file is part of the application.h hierarchy, and should not 
+ * possess any functional code within itself. It is to be used only 
+ * as an in-code configuration store. It should only add preprocessor 
+ * files and definitions and should not create any compiliable code.
  * 
- * Drivers should include this file to get all the relevant platform 
- * data for setting up the implementation drivers. 
- * 
- * The corresponding HAL include chain is where the libraries
- * and C code should go. 
  */
 
 #ifndef uC_PUM_H
@@ -60,6 +53,6 @@
 #define clearbit(r, b)  (r) &= ~_BV(b)
 #define togglebit(r, b) (r) ^= _BV(b)
 /**@}*/
-#include "uc_pum_lp5529.h"
+#include "uc_msp430f5529.h"
 
 #endif

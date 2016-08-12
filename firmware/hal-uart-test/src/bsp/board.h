@@ -1,9 +1,9 @@
 /* 
-   Copyright 2015 Quazar Technologies Pvt. Ltd.
-   Copyright 2015 Chintalagiri Shashank
+   Copyright (c) 
+     (c) 2015-2016 Chintalagiri Shashank, Quazar Technologies Pvt. Ltd.
    
    This file is part of
-   Embedded bootstraps : Board Support Packages
+   Embedded bootstraps : Board Support Package
    
    This library is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as published
@@ -21,24 +21,17 @@
 
 /**
  * @file board.h
- * @brief Highest level include for firmware library superstructure.
+ * @brief Highest level include for board-level configuration parmeters.
  *
- * This file acts as a proxy for the specific board include header. Project 
- * firmware code should include this file instead of the board specific 
- * headers. 
+ * This file, and the file hierarchy that it includes, should define
+ * all the parameters necessary for configuring the modules present on the
+ * actual, physical board. 
  * 
- * Including this file should include all the functional elements, 
- * which could be undesireable behavior. The alternative would be to 
- * selectively include either `hal_uc.h`, which will bring in only the
- * necessary uC functions, or even the relevant `hal_uc_*.h` file, which 
- * will only bring in the necessary modules.
+ * This file is part of the application.h hierarchy, and should not 
+ * possess any functional code within itself. It is to be used only 
+ * as an in-code configuration store. It should only add preprocessor 
+ * files and definitions and should not create any compilable code.
  * 
- * As such, this file should not have any major functional code elements, 
- * and should only redirect to another board-specific file that is responsible
- * for including everything relevant. Various definitions needed for 
- * configuring the lower level modules should be placed in `bsp/uc_pum.h` and
- * it's include chain, so that independent modules can be imported without 
- * needing to include the entire board.h hierarchy.
  */
 
 #ifndef BOARD_H

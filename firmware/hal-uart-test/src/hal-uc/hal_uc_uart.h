@@ -202,7 +202,7 @@ static inline uint8_t uart_getc_bare(uint8_t intfnum);
 
 // Set up the implentation
 #include "uart_impl.h"
-
+#include "uart_handlers.h"
 #endif
 
 

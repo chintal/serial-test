@@ -35,8 +35,8 @@
 #ifndef BCIFACE_H
 #define BCIFACE_H
 
-#include"board_pum.h"
-#include"application.h"
+#include "application.h"
+#include "hal_uc.h"
 
 #if BOARD_HAS_BCIFACE == 1 && APP_ENABLE_BCIF == 1
     static inline void bc_init(void);
@@ -50,9 +50,6 @@
     static inline void bc_discard_rxb(void);
 
     #if BOARD_BCIFACE_TYPE == BCI_UART
-
-        #include "hal_uc_uart.h"
-        
         /**
          * @brief Initialize the Backchannel Interface.
          */

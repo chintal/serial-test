@@ -22,6 +22,7 @@
 #ifndef CORE_IMPL_H
 #define CORE_IMPL_H
 
+#include "application.h"
 #include "uc_map_impl.h"
 
 #include "msp430-driverlib/MSP430F5xx_6xx/driverlib.h"

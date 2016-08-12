@@ -2,9 +2,9 @@
 #include<bytebuf/bytebuf.h>
 #include<prbs/prbs.h>
 
-#include "uc_pum.h"
+#include "application.h"
 #include "hal_uc.h"
-#include "bc_iface.h"
+#include "subsystems.h"
 
 #include "application.h"
 

@@ -19,6 +19,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
+#include "hal_uc_map.h"
 #include "hal_uc_core.h"
 
 #include "msp430-driverlib/MSP430F5xx_6xx/driverlib.h"

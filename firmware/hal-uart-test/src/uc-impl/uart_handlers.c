@@ -19,9 +19,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
-#include "uc_pum.h"
-#include "hal_uc.h"
-#include "uart_impl.h"
+#include <bytebuf/bytebuf.h>
+#include "hal_uc_map.h"
+#include "hal_uc_uart.h"
+
 
 volatile uint8_t __uart_handler_inclusion;
 
@@ -53,8 +54,8 @@ volatile uint8_t __uart_handler_inclusion;
     static inline void uart0_handler_rx(void){
         uint8_t rval; 
         rval = HWREG8(uC_UART0_BASE + OFS_UCAxRXBUF);
-        if (bytebuf_cGetFree(&uart1_rxbuf)){
-            bytebuf_cPushByte(&uart1_rxbuf, rval, 0x00);
+        if (bytebuf_cGetFree(&uart0_rxbuf)){
+            bytebuf_cPushByte(&uart0_rxbuf, rval, 0x00);
         }
         else{
             (*uart0_if.state->overrun_counter)++;

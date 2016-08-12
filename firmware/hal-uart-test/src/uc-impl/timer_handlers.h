@@ -1,7 +1,7 @@
 /* 
-   Copyright 2015 Quazar Technologies Pvt. Ltd.
-   Copyright 2015 Chintalagiri Shashank
-   
+   Copyright (c)
+    (c) 2016 Chintalagiri Shashank, Quazar Technologies Pvt. Ltd.
+      
    This file is part of
    Embedded bootstraps : Peripheral driver implementations : MSP430
    
@@ -19,4 +19,33 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
-#include "hal_uc_gpio.h"
+#ifndef TIMER_HANDLERS_H
+#define TIMER_HANDLERS_H
+
+extern volatile uint8_t __timer_handler_inclusion;
+
+/**
+ * @name Timer Interrupt Handlers
+ */
+/**@{*/ 
+#if uC_TIMER0_ENABLED
+void _timer0_primary_irqhandler(void);
+void _timer0_secondary_irqhandler(void);
+#endif
+
+#if uC_TIMER1_ENABLED
+void _timer1_primary_irqhandler(void);
+void _timer1_secondary_irqhandler(void);
+#endif
+
+#if uC_TIMER2_ENABLED
+void _timer2_primary_irqhandler(void);
+void _timer2_secondary_irqhandler(void);
+#endif
+
+#if uC_TIMER3_ENABLED
+void _timer3_primary_irqhandler(void);
+void _timer3_secondary_irqhandler(void);
+#endif
+/**@}*/ 
+#endif

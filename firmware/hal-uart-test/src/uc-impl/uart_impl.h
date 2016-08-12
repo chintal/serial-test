@@ -22,9 +22,7 @@
 #ifndef UART_IMPL_H
 #define UART_IMPL_H
 
-#include "uc_pum.h"
-#include "uc_map_impl.h"
-#include "uc_types_impl.h"
+#include "hal_uc_map.h"
 
 #include <string.h>
 #include <printf/printf.h>
@@ -34,51 +32,32 @@
 
 #ifdef uC_INCLUDE_UART_IFACE
 
-#include "uart_handlers.h"
-
 typedef enum {UART_HWIF_USCI_A} UART_HWIF_TYPE;
 
-typedef struct{
+typedef struct _UART_HWIF_t{
     UART_HWIF_TYPE type;
     HAL_ADDRESS_t base;
     HAL_BASE_t vector;
-}_UART_HWIF_t;
+}_uart_hwif_t;
 
-typedef struct{
+typedef struct _UART_STATE_t{
     uint8_t triggered;
     uint16_t * overrun_counter;
-}UART_STATE_t;
+}uart_state_t;
 
-typedef struct{
-    const _UART_HWIF_t * hwif;
-    UART_STATE_t * state;
+typedef struct UART_IF_t{
+    const _uart_hwif_t * hwif;
+    uart_state_t * state;
     bytebuf * const txbuf;
     bytebuf * const rxbuf;
-}UART_IF_t;
+}uart_if_t;
 
-
-#define uC_UART0_TYPE          UART_HWIF_USCI_A
-#define uC_UART0_BASE          USCI_A0_BASE
-#define uC_UART0_VECTOR        USCI_A0_VECTOR
-
-#define uC_PORTSEL_UART0       GPIO_PORT_P3
-#define uC_PINSEL_UART0_TX     GPIO_PIN3
-#define uC_PINSEL_UART0_RX     GPIO_PIN4
-
-#define uC_UART1_TYPE          UART_HWIF_USCI_A
-#define uC_UART1_BASE          USCI_A1_BASE
-#define uC_UART1_VECTOR        USCI_A1_VECTOR
-
-#define uC_PORTSEL_UART1       GPIO_PORT_P4
-#define uC_PINSEL_UART1_TX     GPIO_PIN4
-#define uC_PINSEL_UART1_RX     GPIO_PIN5
-
-extern const UART_IF_t *const uart_if[];
+extern const uart_if_t *const uart_if[];
 
 #if uC_UART0_ENABLED
     extern bytebuf uart0_txbuf;
     extern bytebuf uart0_rxbuf;
-    extern const UART_IF_t uart0_if;
+    extern const uart_if_t uart0_if;
     extern uint16_t uart0_default_overrun_counter;
     void uart0_init(void);
 #endif
@@ -86,7 +65,7 @@ extern const UART_IF_t *const uart_if[];
 #if uC_UART1_ENABLED
     extern bytebuf uart1_txbuf;
     extern bytebuf uart1_rxbuf;
-    extern const UART_IF_t uart1_if;
+    extern const uart_if_t uart1_if;
     extern uint16_t uart1_default_overrun_counter;
     void uart1_init(void);
 #endif

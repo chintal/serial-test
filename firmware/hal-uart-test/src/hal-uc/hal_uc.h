@@ -28,23 +28,27 @@
  * `hal_uc_map.h`. HAL_uC brings in the underlying drivers provided by the base 
  * libraries (preferably manufacturer provided) and provides wrappers around it to 
  * form a controlled interface. The definitions within `hal_uc_map.h` determine 
- * which underlying implementation can be used to provide the available interfaces.
+ * which underlying interface / peripheral should be used to provide the required 
+ * functionality.
  * 
- * General applications can include the bsp/board.h instead, which will use the
- * this file to gain access to low level uC peripheral drivers. The controlled 
- * HAL_uC interface should be preferred over the underlying driver APIs (such as 
- * `driverlib` for MSP430), even though both versions exist in the namespace. 
- * This will allow easier migration and code-sharing with other ICs and/or platforms.
+ * General applications will have to include this file after `application.h` is 
+ * imported. The controlled HAL_uC interface should be preferred over the 
+ * underlying driver APIs (such as `driverlib` for MSP430), even though both 
+ * versions exist in the namespace. This will allow easier migration and 
+ * code-sharing with other ICs and/or platforms.
  * 
  * The `hal_uc` folder should ideally be portable across all implementations. MCU 
- * specific implementation goes into `peripherals` and would ideally be portable to 
- * entire MCU families, taking resource information from the `bsp`. Some graceful way 
- * to bow out should be found when these functions are not provided by a certain uC. 
+ * specific implementation goes into `uc-impl` and would ideally be portable to 
+ * entire MCU families, taking resource information from `application.h`. Some 
+ * graceful way to bow out should be found when these functions are not provided 
+ * by a certain uC. 
  * 
  * The HAL layer provides only function prototypes and should have zero bytecode 
- * footprint. The mapping from the HAL layer to the implementation layer is determined 
- * by the `(module)_impl.h` and `(module)_impl.c` files within the implementation layer 
- * (the `perpherals` folder).
+ * footprint. The mapping from the HAL layer to the implementation layer is 
+ * determined by the `(module)_impl.h` and `(module)_impl.c` files within the 
+ * implementation layer (the `uc-impl` folder). Additionally, `(module)_handlers.h`
+ * and `(module)_handlers.c` provide inmplementations of relevant IRQ handlers. 
+ * These files may be relatively less portable.
  * 
  * One-time or low-frequency use functions, such as init and setup functions, will
  * typically be included in `(module)_impl.c` and will be compiled as part of the 
@@ -68,9 +72,11 @@
  * location is `peripherals/<driver>_impl.h`
  */
 
+#include "hal_uc_map.h"
 #include "hal_uc_types.h"
 #include "hal_uc_core.h"
 #include "hal_uc_gpio.h"
 #include "hal_uc_uart.h"
+#include "hal_uc_timer.h"
 
 #endif

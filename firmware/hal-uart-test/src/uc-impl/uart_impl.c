@@ -19,9 +19,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
-#include "uc_pum.h"
-#include "hal_uc.h"
-#include "msp430-driverlib/MSP430F5xx_6xx/driverlib.h"
+#include "hal_uc_map.h"
+#include "hal_uc_uart.h"
+
+#include "msp430-driverlib/MSP430F5xx_6xx/usci_a_uart.h"
 
 #ifdef uC_INCLUDE_UART_IFACE
 
@@ -46,13 +47,13 @@
     bytebuf uart0_rxbuf;
     uint16_t uart0_default_overrun_counter = 0;
     
-    static const _UART_HWIF_t _uart0_hwif = {
+    static const _uart_hwif_t _uart0_hwif = {
         uC_UART0_TYPE, uC_UART0_BASE, uC_UART0_VECTOR
     };
     
-    UART_STATE_t uart0_state = {0, &uart0_default_overrun_counter};
+    uart_state_t uart0_state = {0, &uart0_default_overrun_counter};
     
-    const UART_IF_t uart0_if = {
+    const uart_if_t uart0_if = {
         &_uart0_hwif,
         &uart0_state,
         &uart0_txbuf,
@@ -124,13 +125,13 @@
     bytebuf uart1_rxbuf;
     uint16_t uart1_default_overrun_counter = 0;
     
-    static const _UART_HWIF_t _uart1_hwif = {
+    static const _uart_hwif_t _uart1_hwif = {
         uC_UART1_TYPE, uC_UART1_BASE, uC_UART1_VECTOR
     };
     
-    UART_STATE_t uart1_state = {0, &uart1_default_overrun_counter};
+    uart_state_t uart1_state = {0, &uart1_default_overrun_counter};
     
-    const UART_IF_t uart1_if = {
+    const uart_if_t uart1_if = {
         &_uart1_hwif,
         &uart1_state,
         &uart1_txbuf,
@@ -180,8 +181,33 @@
     }
 #endif
 
-const UART_IF_t *const uart_if[2] = {&uart0_if, &uart1_if};
-void (*const _uart_init_func[2])(void) = {_uart0_init, _uart1_init};
+const uart_if_t *const uart_if[2] = {
+    #if uC_UART0_ENABLED
+        &uart0_if
+    #else
+        NULL
+    #endif
+    ,
+    #if uC_UART1_ENABLED
+        &uart1_if
+    #else
+        NULL
+    #endif
+};
+
+void (*const _uart_init_func[2])(void) = {
+    #if uC_UART0_ENABLED
+        _uart0_init
+    #else
+        NULL
+    #endif
+    ,
+    #if uC_UART1_ENABLED
+        _uart1_init
+    #else
+        NULL
+    #endif
+};
 
 void uart_init(uint8_t intfnum){
     (*_uart_init_func[intfnum])();
