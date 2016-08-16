@@ -37,6 +37,8 @@
 | Include files                                                                |
 |-----------------------------------------------------------------------------*/
 #include <string.h>
+#include "application.h"
+#include <msp430-driverlib/MSP430F5xx_6xx/ucs.h>
 
 #include "USB_API/USB_Common/device.h"        // Basic Type declarations
 #include "USB_API/USB_Common/defMSP430USB.h"
@@ -82,7 +84,6 @@ extern uint16_t wUsbHidEventMask;
 int16_t PHDCToHostFromBuffer(uint8_t);
 int16_t PHDCToBufferFromHost(uint8_t);
 int16_t PHDCIsReceiveInProgress(uint8_t);
-uint16_t USB_determineFreq(void);
 
 void iUsbInterruptHandler(void);
 /*----------------------------------------------------------------------------+
@@ -304,8 +305,8 @@ uint8_t SetupPacketInterruptHandler(void)
 //----------------------------------------------------------------------------
 void PWRVBUSoffHandler(void)
 {
-    // TODO Use standard timing functions instead?
-    uint16_t MCLKFreq = USB_determineFreq();
+    #if APP_ENABLE_MCLK_SCALING
+    uint16_t MCLKFreq = ( UCS_getMCLK() / 1000 );
     uint16_t DelayConstant_250us = ((MCLKFreq >> 6) + (MCLKFreq >> 7) + (MCLKFreq >> 9));
     volatile uint16_t i, j;
 
@@ -316,6 +317,9 @@ void PWRVBUSoffHandler(void)
             _NOP();
         }
     }
+    #else
+    __delay_cycles(uC_MCLK_FRQ_HZ/1000);
+    #endif
     if (!(USBPWRCTL & USBBGVBV))
     {
         USBKEYPID = 0x9628;             // set KEY and PID to 0x9628 -> access to configuration registers enabled
@@ -331,8 +335,8 @@ void PWRVBUSoffHandler(void)
 //----------------------------------------------------------------------------
 void PWRVBUSonHandler(void)
 {
-    // TODO Use standard timing functions instead?
-    uint16_t MCLKFreq = USB_determineFreq();
+    #if APP_ENABLE_MCLK_SCALING
+    uint16_t MCLKFreq = ( UCS_getMCLK() / 1000 );
     uint16_t DelayConstant_250us = ((MCLKFreq >> 6) + (MCLKFreq >> 7) + (MCLKFreq >> 9));
     volatile uint16_t i, j;
 
@@ -343,6 +347,9 @@ void PWRVBUSonHandler(void)
             _NOP();
         }
     }
+    #else
+    __delay_cycles(uC_MCLK_FRQ_HZ/1000);
+    #endif
     if (USBPWRCTL & USBBGVBV)                //Checking for USB Bandgap and VBUS valid before modifying USBPWRCTL
     {
         USBKEYPID =  0x9628;                // set KEY and PID to 0x9628 -> access to configuration registers enabled

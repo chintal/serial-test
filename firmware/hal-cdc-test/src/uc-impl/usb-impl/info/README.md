@@ -27,8 +27,8 @@ Substantial changes from USB Developers Package
     the corresponding header files to be inlined.
     
   - The content of USB_app is discarded in favor of a custom implementation
-    in uc-impl/usb_impl.{c/h} and uc-impl/usb_handlers.{c/h}, possibly to 
-    be based on the content of USB_app/usbConstructs.{c/h} and 
+    in uc-impl/usb_impl.{c/h} and uc-impl/usb_event_handlers.{c/h}, possibly 
+    to be based on the content of USB_app/usbConstructs.{c/h} and 
     USB_app/usbEventHandling.c. Similarly, USB_config/UsbIsr.c is moved into 
     uc-impl/usb_handlers.{c/h}, in-line with the pattern for captive 
     interrupt handler functions.
@@ -43,12 +43,20 @@ Substantial changes from USB Developers Package
      
   - `USB_API` cannot be used as a precompiled library as long as the 
     application is allowed to specify its descriptors within `descriptors.h` 
-    and `descriptors.c`. Due to this, we therefore take the necessity of 
-    integrating `USB_API` into the application code as a given. As such, 
+    and `descriptors.c`, which is used by all the other USBAPI files to 
+    control its compilation. Due to this, we therefore assume the integration 
+    of `USB_API` into the application code to be unavoidable. As such, 
     `USB_API` and associated code is to reside in `uc-impl`, along with 
     (for now) a standardized set of descriptors. Applications desiring 
     customized descriptors must make the necessary changes to the library 
     in the uC implementation layer.
+    
+  - Delays in `usb.c` and `usb_irq_handler.c` have been replaced to use 
+    standard driverlib functions instead. The `USB_determineFreq()` function 
+    in the original USBAPI implementation is eliminated. When the application 
+    does not use MCLK frequency scaling (controlled in `application.h` by 
+    APP_ENABLE_MCLK_SCALING), the GCC delay intrinsic is used to provide a 
+    more size-efficient delay implementation.
 
 Interrupt Handlers
 ------------------

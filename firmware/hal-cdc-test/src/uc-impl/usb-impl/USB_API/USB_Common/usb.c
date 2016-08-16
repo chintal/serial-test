@@ -40,6 +40,7 @@
  +----------------------------------------------------------------------------*/
 
 #include <string.h>
+#include "application.h"
 #include <msp430-driverlib/MSP430F5xx_6xx/driverlib.h>
 
 #include "../USB_Common/device.h"
@@ -300,7 +301,6 @@ void PHDCResetData(void);
 
 void USB_InitSerialStringDescriptor (void);
 void USB_initMemcpy (void);
-uint16_t USB_determineFreq(void);
 
 
 /**
@@ -308,11 +308,12 @@ uint16_t USB_determineFreq(void);
  */
 uint8_t USB_init (void)
 {
-    // TODO Use standard timing functions instead?
     uint16_t bGIE  = __get_SR_register() & GIE; //save interrupt status
-    uint16_t MCLKFreq = USB_determineFreq();
+    #if APP_ENABLE_MCLK_SCALING
+    uint16_t MCLKFreq = (UCS_getMCLK() / 1000);
     uint16_t DelayConstant_250us = ((MCLKFreq >> 6) + (MCLKFreq >> 7) + (MCLKFreq >> 9));
     volatile uint16_t i, j;
+    #endif
 
     //atomic operation - disable interrupts
     __disable_interrupt();                                  
@@ -339,12 +340,16 @@ uint8_t USB_init (void)
         USBPWRCTL = SLDOEN + USBDETEN; //enable 1.8v and VBUS voltage detection 
                                        //and internal 3.3v LDO is turned off.
 
+    #if APP_ENABLE_MCLK_SCALING
     for (j = 0; j < 20; j++) {
         for (i = 0; i < (DelayConstant_250us); i++) {
             //wait some time for LDOs (5ms delay)
             _NOP();
         }
     }
+    #else
+    __delay_cycles(uC_MCLK_FRQ_HZ/200);
+    #endif
 
     USBPWRCTL |= VBONIE;  //enable interrupt VBUSon
     USBKEYPID = 0x9600;   //access to configuration registers disabled
@@ -451,12 +456,15 @@ uint8_t USB_enable (void)
 	USB_enable_crystal();
 	return (USB_SUCCEED);
     #else
-    // TODO Use standard timing functions instead?
+    
+    #if APP_ENABLE_MCLK_SCALING
     volatile uint16_t i, k;
+    uint16_t MCLKFreq = ( UCS_getMCLK() / 1000 );
+    uint16_t DelayConstant_250us = ((MCLKFreq >> 6) + (MCLKFreq >> 7) + (MCLKFreq >> 9));
+    #endif
     volatile uint16_t j = 0;
     uint16_t status;
-    uint16_t MCLKFreq = USB_determineFreq();
-    uint16_t DelayConstant_250us = ((MCLKFreq >> 6) + (MCLKFreq >> 7) + (MCLKFreq >> 9));
+    
 
     //check USB Bandgap and VBUS valid
     if (!(USBPWRCTL & USBBGVBV)){  
@@ -527,9 +535,9 @@ uint8_t USB_enable (void)
         USBPLLIR = 0x0000;                                               
         if ((((bFunctionSuspended == TRUE) || (bFunctionSuspended == FALSE)) && (USB_DISABLE_XT_SUSPEND == 1)) ||
         		((USB_DISABLE_XT_SUSPEND == 0) && (bFunctionSuspended == FALSE))){  //BUG NUMBER 4879
-            // TODO Use standard timing functions instead?
             #ifdef __MSP430F6638
             //wait 1 ms till enable USB
+            #if APP_ENABLE_MCLK_SCALING
             for(k = 0; k < 4; k++)
             {
                 for (i = 0; i < (DelayConstant_250us); i++){
@@ -537,13 +545,20 @@ uint8_t USB_enable (void)
                 }
             }
             #else
+            __delay_cycles(uC_MCLK_FRQ_HZ/1000);
+            #endif
+            #else
             //wait 1/2 ms till enable USB
+            #if APP_ENABLE_MCLK_SCALING
             for(k = 0; k < 2; k++)
             {
                 for (i = 0; i < (DelayConstant_250us); i++){
                    _NOP();
                 }
-            }        
+            }
+            #else
+            __delay_cycles(uC_MCLK_FRQ_HZ/2000);
+            #endif
             #endif
         }
 
@@ -1664,61 +1679,6 @@ uint8_t USB_switchInterface(uint8_t interfaceIndex)
 }
 
 #endif
-
-uint16_t USB_determineFreq(void){
-    uint16_t freq = 0;                  // calculated MCLK freq in kHz
-    uint16_t currentFLLN;               // value of divider N taken from UCS registers
-    uint8_t currentSELM;                // MCLK reference taken from UCS registers
-    uint8_t currentFLLREFDIV;           // value of divider n taken from UCS registers
-    uint16_t currentFLLD;               // value of prescalar D taken from UCS registers
-    uint16_t FLLRefFreq;
-
-    currentSELM = (UCSCTL4_L & SELM_7);   // get clock selection control register
-
-    if(currentSELM<=4) // MCLK = DCO, DCOCLKDIV, XT1, VLO, or REFO.  The last three aren't supported by the API.
-    {
-        FLLRefFreq = 33;                    // The reference is usually 32.768 kHz.
-        if((UCSCTL3_L & SELREF_7) >= 0x50){  // Unless it's XT2 frequency
-            FLLRefFreq = USB_XT_FREQ_VALUE * 1000;
-        }
-
-        // determine factors N and n
-        currentFLLN = UCSCTL2 & 0x03FF;          // get FLL multiplier register
-        currentFLLN++;
-        if(currentSELM == SELM_3)            // if MCLK is sourced by DCOCLK
-        {
-            // determine D
-            currentFLLD = UCSCTL2 & FLLD_7;  // get FLLD register
-            currentFLLD >>= 12;
-            currentFLLN <<= currentFLLD;
-        }
-
-        currentFLLREFDIV = UCSCTL3_L & FLLREFDIV_7; // get FLL reference divider register
-        if (currentFLLREFDIV == 0) {
-            freq = currentFLLN * (FLLRefFreq / 1);
-        }
-        else if (currentFLLREFDIV == 1) {
-            freq = currentFLLN * (FLLRefFreq / 2);
-        }
-        else if (currentFLLREFDIV == 2) {
-            freq = currentFLLN * (FLLRefFreq / 4);
-        }
-        else if (currentFLLREFDIV == 3) {
-            freq = currentFLLN * (FLLRefFreq / 8);
-        }
-        else if (currentFLLREFDIV == 4) {
-            freq = currentFLLN * (FLLRefFreq / 12);
-        }
-        else if (currentFLLREFDIV == 5) {
-            freq = currentFLLN * (FLLRefFreq / 16);
-        }
-    }
-    else
-    {
-        freq = USB_XT_FREQ_VALUE * 1000;
-    }
-    return freq >> (UCSCTL5_L & DIVM_7);  // Divide by any divider present in DIVM
-}
 
 
 //

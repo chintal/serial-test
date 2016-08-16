@@ -48,18 +48,20 @@
 
 #include "hal_uc_types.h"
 
-#define APP_ENABLE_BCIF         1
+#define APP_ENABLE_MCLK_SCALING     0
+
+#define APP_ENABLE_BCIF             1
 
 // Core HAL Configuration. Should be calculated instead.
-#define uC_USBCDC_ENABLED             1
-#define uC_USBHID_ENABLED             0
-#define uC_USBMSC_ENABLED             0
-#define uC_USBPHDC_ENABLED            0
+#define uC_USBCDC_ENABLED           1
+#define uC_USBHID_ENABLED           0
+#define uC_USBMSC_ENABLED           0
+#define uC_USBPHDC_ENABLED          0
 
-#define uC_UART0_ENABLED              0
-#define uC_UART1_ENABLED              1
-#define uC_UART1_BAUD                 256000
-#define uC_UART1_TXBUF_LEN            100
+#define uC_UART0_ENABLED            0
+#define uC_UART1_ENABLED            1
+#define uC_UART1_BAUD               256000
+#define uC_UART1_TXBUF_LEN          100
 
 #include "board.h"
 #include "uc_pum.h"
