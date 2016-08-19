@@ -40,10 +40,10 @@ static void _initialize_interrupts(void){
     __usb_handler_inclusion = 1;
 }
 
-#if APP_ENABLE_BCIF == 1
-static void _main_serial_test(void);
 
-static void _main_serial_test(void){
+static void _bc_serial_test(void);
+
+static void _bc_serial_test(void){
     volatile uint8_t i;
     //Block on Backchannel Interface
     rval = 0;
@@ -171,7 +171,6 @@ static void _main_serial_test(void){
         while(1);
     }
 }
-#endif
 
 int main(void)
 {   
@@ -194,6 +193,6 @@ int main(void)
     
     // Subsystems Initialization
     _bc_init();
-    _main_serial_test();
+    _bc_serial_test();
     return(0);
 }

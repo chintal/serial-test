@@ -39,10 +39,43 @@
 #include "hal_uc.h"
 
 #if BOARD_HAS_BCIFACE == 1 && APP_ENABLE_BCIF == 1
+    /**
+    * @brief Initialize the Backchannel Interface.
+    */
     static inline void bc_init(void);
     
     static inline uint8_t bc_reqlock(uint8_t len, uint8_t token);
+    
+    /**
+     * @brief Print a single character to the backchannel interface
+     * 
+     * Send a single character via the backchannel interface
+     * 
+     * @param byte byte to be sent.
+     * @param token token against which buffer lock should be obtained 
+     *              and/or used.
+     * @param handlelock If 1, the function will deal with interacting
+     *              with the underlying locking mechanism. If not, it
+     *              assumes you already hold the necessary locks.
+     * @warning If the locking is left to this function, it will give up
+     *          immediately if the lock is held elsewhere. You should 
+     *          check the return value of the function if the send is 
+     *          critical.
+     * @return 0 for error, 1 for success.
+     */
     static inline uint8_t bc_putc(uint8_t byte, uint8_t token, uint8_t handlelock);
+    
+    /**
+     * @brief Print to backchannel interface.
+     * 
+     * Print to the backchannel interface via a printf-like 
+     * function. This function should be callable identically to
+     * printf. If only a subset of the format strings are allowed,
+     * this should be documented by the implementation.
+     *   
+     * @param *format subset of the standard printf format.
+     * @return 0 for error, number of characters written for success.
+     */
     static inline uint8_t bc_printf(const char *format, ...);
     
     static inline uint8_t bc_getc(void);
@@ -50,9 +83,7 @@
     static inline void bc_discard_rxb(void);
 
     #if BOARD_BCIFACE_TYPE == BCI_UART
-        /**
-         * @brief Initialize the Backchannel Interface.
-         */
+        
         static inline void bc_init(void){
             uart_init(BOARD_BCIFACE_INTFNUM);
         }    
@@ -65,23 +96,6 @@
             return uart_rellock(BOARD_BCIFACE_TYPE, token);
         }
         
-        /**
-          * @brief Print a single character to the backchannel interface
-          * 
-          * Send a single character via the backchannel interface
-          * 
-          * @param byte byte to be sent.
-          * @param token token against which buffer lock should be obtained 
-          *              and/or used.
-          * @param handlelock If 1, the function will deal with interacting
-          *              with the underlying locking mechanism. If not, it
-          *              assumes you already hold the necessary locks.
-          * @warning If the locking is left to this function, it will give up
-          *          immediately if the lock is held elsewhere. You should 
-          *          check the return value of the function if the send is 
-          *          critical.
-          * @return 0 for error, 1 for success.
-          */
         static inline uint8_t bc_putc(uint8_t byte, uint8_t token, uint8_t handlelock){
             return uart_putc(BOARD_BCIFACE_INTFNUM, byte, token, handlelock);
         }
@@ -90,17 +104,6 @@
             return uart_write(BOARD_BCIFACE_INTFNUM, buffer, len, token);
         }
         
-        /**
-          * @brief Print to backchannel interface.
-          * 
-          * Print to the backchannel interface via a printf-like 
-          * function. This function should be callable identically to
-          * printf. If only a subset of the format strings are allowed,
-          * this should be documented by the implementation.
-          *   
-          * @param *format subset of the standard printf format.
-          * @return 0 for error, number of characters written for success.
-          */
         static inline uint8_t bc_printf(const char *format, ...){
             uint8_t rval;
             va_list args;
@@ -127,9 +130,11 @@
         }
 
     #elif BOARD_BCIFACE_TYPE == BCI_USBCDC
+        
         static inline void bc_init(void){
             usbcdc_init(BOARD_BCIFACE_INTFNUM);
         }    
+        
         static inline uint8_t bc_unhandled_rxb(void){
             return usbcdc_population_rxb(BOARD_BCIFACE_INTFNUM);
         }
@@ -137,6 +142,7 @@
         static inline void bc_discard_rxb(){
             usbcdc_discard_rxb(BOARD_BCIFACE_INTFNUM);
         }
+        
     #else 
     #error Backchannel Interface Provider not Recognized
     #endif
