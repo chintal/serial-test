@@ -79,6 +79,7 @@ void uart_init(uint8_t intfnum);
  */
 static inline void uart_send_trigger(uint8_t intfnum);
 
+static inline void uart_send_flush(uint8_t intfnum);
 
 static inline uint8_t uart_reqlock(uint8_t intfnum, uint8_t len, uint8_t token);
 

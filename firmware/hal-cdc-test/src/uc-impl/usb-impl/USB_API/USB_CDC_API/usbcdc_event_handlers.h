@@ -91,29 +91,6 @@ uint8_t USBCDC_handleDataReceived (uint8_t intfNum);
 
 //*****************************************************************************
 //
-//! Send Operation on CDC Interface has Completed
-//!
-//! \param intfNum is which CDC interface is being used.
-//! 
-//! 
-//! This event indicates that a send operation on CDC interface intfNum has just
-//! been completed. 
-//! 
-//! In applications sending a series of data blocks, the designer may wish
-//! to use this event to trigger another send operation. This cannot be done
-//! directly out of this event, since USBCDC_sendData() cannot be called 
-//! from the event handlers. However, the handler can set a flag for main()
-//! to begin the operation.
-//! 
-//! \return FALSE to go asleep after interrupt (in the case the CPU slept before
-//! interrupt).
-//
-//*****************************************************************************
-uint8_t USBCDC_handleSendCompleted (uint8_t intfNum);
-
-
-//*****************************************************************************
-//
 //! Receive Operation on CDC Interface has Completed
 //!
 //! \param intfNum is which HID interface is being used.

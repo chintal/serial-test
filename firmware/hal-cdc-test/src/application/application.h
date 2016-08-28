@@ -51,6 +51,7 @@
 #define APP_ENABLE_MCLK_SCALING     0
 
 #define APP_ENABLE_BCIF             1
+#define APP_PDS_INTFNUM             0
 
 // Core HAL Configuration. Should be calculated instead.
 #define uC_USBCDC_ENABLED           1

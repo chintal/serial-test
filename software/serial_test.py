@@ -136,7 +136,7 @@ def begin_throughput_test(layer2, cmd):
                             recieved_bytes, error_bytes)
             error_bytes += 1
         recieved_bytes += 1
-        if expected_char is ord('z'):
+        if expected_char is ord('Z'):
             expected_char = ord('0')
         else:
             expected_char += 1

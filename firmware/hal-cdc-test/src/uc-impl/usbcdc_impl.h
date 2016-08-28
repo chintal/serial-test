@@ -29,44 +29,69 @@
 
 #if uC_USBCDC_ENABLED
 
+
 static inline void usbcdc_init(uint8_t inftnum){
     ;
 }
 
 static inline void usbcdc_send_trigger(uint8_t intfnum){
-    ;
+    USBCDC_sendTrigger(intfnum);
 }
 
 static inline void usbcdc_send_flush(uint8_t intfnum){
-    ;
+    USBCDC_sendFlush(intfnum);
 }
 
 static inline uint8_t usbcdc_reqlock(uint8_t intfnum, uint8_t len, uint8_t token){
-    return 0;
+    // TODO Implement locking mechanism
+    uint8_t avail = USBCDC_getInterfaceStatus_SendAvailable(intfnum);
+    if (len){
+        if (avail >= len){
+            return 0x01;
+        }
+        else{
+            return 0x00;
+        }
+    }
+    else {
+        return avail;
+    }
+}
+
+static inline uint8_t usbcdc_rellock(uint8_t intfnum, uint8_t token){
+    return 1;
 }
 
 static inline uint8_t usbcdc_putc(uint8_t intfnum, uint8_t byte, uint8_t token, uint8_t handlelock){
+    uint8_t stat=1;
+    if (handlelock){
+        stat = usbcdc_reqlock(intfnum, 1, token);
+    }
+    if (stat){
+        stat = USBCDC_sendChar(intfnum, byte);
+        usbcdc_send_trigger(intfnum);
+        return stat;
+    }
     return 0;
 }
 
 static inline uint8_t usbcdc_write(uint8_t intfnum, void *buffer, uint8_t len, uint8_t token){
-    return 0;
-}
-                                  
-static inline uint8_t usbcdc_txready(uint8_t intfNum){
-    return 0;
+    uint8_t rval;
+    rval = USBCDC_sendBuffer(intfnum, (uint8_t *) buffer, len);
+    usbcdc_send_trigger(intfnum);
+    return rval;
 }
 
 static inline uint8_t usbcdc_getc(uint8_t intfnum){
-    return 0;
+    return USBCDC_recieveChar(intfnum);
 }
 
 static inline uint8_t usbcdc_read(uint8_t intfnum, void *buffer, uint8_t len){
-    return 0;
+    return USBCDC_recieveBuffer(intfnum, (uint8_t *) buffer, len);
 }
 
 static inline uint8_t usbcdc_population_rxb(uint8_t intfNum){
-    return USBCDC_getBytesInUSBBuffer(intfNum);
+    return USBCDC_getInterfaceStatus_RecieveWaiting(intfNum);
 }
 
 static inline void usbcdc_discard_rxb(uint8_t intfNum){

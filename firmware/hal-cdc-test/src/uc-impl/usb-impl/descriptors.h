@@ -144,7 +144,7 @@ extern "C"
 // Controls what the device reports to the host regarding how much power it will
 // consume from VBUS.  Expressed in 2mA units; that is, the number of mA
 // communicated is twice the value of this field.
-#define USB_MAX_POWER               0x7d
+#define USB_MAX_POWER               0x32
 //Configuration constants that can not change ( Fixed Values)
 #define CDC_CLASS  2
 #define HID_CLASS  3

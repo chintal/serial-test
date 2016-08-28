@@ -135,8 +135,41 @@
             usbcdc_init(BOARD_BCIFACE_INTFNUM);
         }    
         
+        static inline uint8_t bc_reqlock(uint8_t len, uint8_t token){
+            return usbcdc_reqlock(BOARD_BCIFACE_INTFNUM, len, token);
+        }
+        
+        static inline uint8_t bc_rellock(uint8_t token){
+            return usbcdc_rellock(BOARD_BCIFACE_TYPE, token);
+        }
+        
+        static inline uint8_t bc_putc(uint8_t byte, uint8_t token, uint8_t handlelock){
+            return usbcdc_putc(BOARD_BCIFACE_INTFNUM, byte, token, handlelock);
+        }
+        
+        static inline uint8_t bc_write(void *buffer, uint8_t len, uint8_t token){
+            return usbcdc_write(BOARD_BCIFACE_INTFNUM, buffer, len, token);
+        }
+        
+        static inline uint8_t bc_printf(const char *format, ...){
+            //uint8_t rval;
+            va_list args;
+            va_start( args, format );
+            //rval = uart_vprintf(BOARD_BCIFACE_INTFNUM, format, &args);
+            va_end(args);
+            return 0x00;
+        }
+        
         static inline uint8_t bc_unhandled_rxb(void){
             return usbcdc_population_rxb(BOARD_BCIFACE_INTFNUM);
+        }
+        
+        static inline uint8_t bc_getc(void){            
+            return usbcdc_getc(BOARD_BCIFACE_INTFNUM);
+        }
+        
+        static inline uint8_t bc_read(void *buffer, uint8_t len){
+            return usbcdc_read(BOARD_BCIFACE_INTFNUM, buffer, len);
         }
         
         static inline void bc_discard_rxb(){

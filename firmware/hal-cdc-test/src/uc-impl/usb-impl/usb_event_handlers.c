@@ -182,42 +182,6 @@ void USB_handlePLLStartedEvent(void)
 #ifdef _CDC_
 
 /*
- * This event indicates that data has been received for interface intfNum, 
- * but no data receive operation is underway.
- * Returns TRUE to keep CPU awake.
- */
-uint8_t USBCDC_handleDataReceived(uint8_t intfNum)
-{
-    // TODO: Migrate this to the application layer
-    // Application can place specific code here. 
-    return TRUE;
-}
-
-/*
- * This event indicates that a send operation on interface intfNum has just 
- * been completed. 
- * Return False to not wake the CPU if it was asleep.
- */
-uint8_t USBCDC_handleSendCompleted(uint8_t intfNum)
-{
-    // TODO: Migrate this to the application layer
-    // Application can place specific code here. 
-    return FALSE;
-}
-
-/*
- * This event indicates that a receive operation on interface intfNum has 
- * just been completed.
- * Returns TRUE to keep CPU awake.
- */
-uint8_t USBCDC_handleReceiveCompleted(uint8_t intfNum)
-{
-    // TODO: Migrate this to the application layer
-    // Application can place specific code here. 
-    return TRUE;
-}
-
-/*
  * This event indicates that new line coding params have been received from 
  * the host.
  * Return False to not wake the CPU if it was asleep.

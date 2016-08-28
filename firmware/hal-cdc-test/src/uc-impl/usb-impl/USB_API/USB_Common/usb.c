@@ -295,7 +295,6 @@ extern __no_init_usb uint8_t pbYBufferAddressEp85[EP_MAX_PACKET_SIZE];
 
 #endif
 
-void CdcResetData (void);
 void HidResetData (void);
 void PHDCResetData(void);
 
@@ -810,7 +809,7 @@ uint8_t USB_reset (void)
 
     #ifdef _CDC_
     //reset CDC specific data structures
-    CdcResetData(); 
+    USBCDC_resetData(); 
     #endif 
 
     #ifdef _PHDC_
@@ -1179,7 +1178,7 @@ uint8_t usbClearEndpointFeature (void)
                     if(stUsbHandle[i].edb_Index == bEndpointNumber)
                     {
                         //resets the buffer to X
-                        CdcReadCtrl[i].bCurrentBufferXY = X_BUFFER; 
+                        USBCDC_resetReadCtrl(i);
                         break;
                     }
                 }
@@ -1211,7 +1210,7 @@ uint8_t usbClearEndpointFeature (void)
                 for(uint8_t i = 0; i < CDC_NUM_INTERFACES; ++i)  //bug 16626
                 {
                     if(stUsbHandle[i].edb_Index == bEndpointNumber){
-                        CdcWriteCtrl[i].bCurrentBufferXY = X_BUFFER;
+                        USBCDC_resetWriteCtrl(i);
                         break;
                     }
                 }

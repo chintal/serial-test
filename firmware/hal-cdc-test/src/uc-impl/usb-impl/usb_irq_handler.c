@@ -74,9 +74,6 @@ extern volatile uint8_t bSecondUartTxDataCounter[];
 extern volatile uint8_t* pbSecondUartTxData;
 extern uint8_t bStatusAction;
 extern uint16_t wUsbEventMask;
-int16_t CdcToHostFromBuffer(uint8_t);
-int16_t CdcToBufferFromHost(uint8_t);
-int16_t CdcIsReceiveInProgress(uint8_t);
 int16_t HidToHostFromBuffer(uint8_t);
 int16_t HidToBufferFromHost(uint8_t);
 int16_t HidIsReceiveInProgress(uint8_t);
@@ -203,53 +200,19 @@ void iUsbInterruptHandler(void)
     case USBVECINT_OUTPUT_ENDPOINT1:
         break;
     case USBVECINT_OUTPUT_ENDPOINT2:
-        //call callback function if no receive operation is underway
-        if (!CdcIsReceiveInProgress(CDC0_INTFNUM) && USBCDC_getBytesInUSBBuffer(CDC0_INTFNUM))
-        {
-            if (wUsbEventMask & USB_DATA_RECEIVED_EVENT)
-            {
-                bWakeUp = USBCDC_handleDataReceived(CDC0_INTFNUM);
-            }
-        }
-        else
-        {
-            //complete receive opereation - copy data to user buffer
-            bWakeUp = CdcToBufferFromHost(CDC0_INTFNUM);
-        }
-        break;
+        //complete receive opereation - copy data to user buffer
+        bWakeUp = CdcToBufferFromHost(CDC0_INTFNUM);
     case USBVECINT_OUTPUT_ENDPOINT3:
         break;
     case USBVECINT_OUTPUT_ENDPOINT4:
-        //call callback function if no receive operation is underway
-        if (!CdcIsReceiveInProgress(CDC1_INTFNUM) && USBCDC_getBytesInUSBBuffer(CDC1_INTFNUM))
-        {
-            if (wUsbEventMask & USB_DATA_RECEIVED_EVENT)
-            {
-                bWakeUp = USBCDC_handleDataReceived(CDC1_INTFNUM);
-            }
-        }
-        else
-        {
-            //complete receive opereation - copy data to user buffer
-            bWakeUp = CdcToBufferFromHost(CDC1_INTFNUM);
-        }
+        //complete receive opereation - copy data to user buffer
+        bWakeUp = CdcToBufferFromHost(CDC1_INTFNUM);
         break;
     case USBVECINT_OUTPUT_ENDPOINT5:
         break;
     case USBVECINT_OUTPUT_ENDPOINT6:
-        //call callback function if no receive operation is underway
-        if (!CdcIsReceiveInProgress(CDC2_INTFNUM) && USBCDC_getBytesInUSBBuffer(CDC2_INTFNUM))
-        {
-            if (wUsbEventMask & USB_DATA_RECEIVED_EVENT)
-            {
-                bWakeUp = USBCDC_handleDataReceived(CDC2_INTFNUM);
-            }
-        }
-        else
-        {
-            //complete receive opereation - copy data to user buffer
-            bWakeUp = CdcToBufferFromHost(CDC2_INTFNUM);
-        }
+        //complete receive opereation - copy data to user buffer
+        bWakeUp = CdcToBufferFromHost(CDC2_INTFNUM);
         break;
     case USBVECINT_OUTPUT_ENDPOINT7:
         break;

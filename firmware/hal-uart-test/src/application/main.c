@@ -18,7 +18,7 @@ static void deferred_exec(void){
 
 #if APP_ENABLE_BCIF == 1
 lfsr16_t prbs;
-const char test_str[] = "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz";
+const char test_str[] = "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 uint8_t c;
 uint8_t tbuffer[20];
 
@@ -66,8 +66,8 @@ static void _main_serial_test(void){
         gpio_set_output_high(BOARD_GREEN_LED_PORT, BOARD_GREEN_LED_PIN);
         
         while(1){
-            if(bc_reqlock(75, BYTEBUF_TOKEN_SCHAR)){
-                bc_write((void *)(&test_str[0]), 75, BYTEBUF_TOKEN_SCHAR);
+            if(bc_reqlock(43, BYTEBUF_TOKEN_SCHAR)){
+                bc_write((void *)(&test_str[0]), 43, BYTEBUF_TOKEN_SCHAR);
             }
             deferred_exec();
         }
@@ -104,7 +104,7 @@ static void _main_serial_test(void){
         i = '0';
         while(1){
             uart_putc_bare(BOARD_BCIFACE_INTFNUM, i);
-            if (i != 'z'){
+            if (i != 'Z'){
                 i ++;
             }
             else{

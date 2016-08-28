@@ -83,8 +83,8 @@
     */
     /**@{*/ 
     #define BOARD_HAS_BCIFACE         1
-    #define BOARD_BCIFACE_TYPE        BCI_UART
-    #define BOARD_BCIFACE_INTFNUM     1        
+    #define BOARD_BCIFACE_TYPE        BCI_USBCDC
+    #define BOARD_BCIFACE_INTFNUM     2        
     /**@}*/ 
 /**@}*/ 
 
