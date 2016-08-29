@@ -20,15 +20,23 @@
 Simple serial communications testing script
 """
 
+from __future__ import print_function
 import argparse
 import serial
 import threading
 import time
 import datetime
-import prbs
+try:
+    import prbs
+except ImportError:
+    prbs = None
 import os
 import sys
-import pytest
+
+try:
+    import pytest
+except ImportError:
+    pytest = None
 
 LIBMODBUS_FOLDER = "../../../components/libmodbus/"
 
@@ -51,9 +59,10 @@ def dump_status():
     else:
         byer = 0.00
 
-    print '{0}::{1} bytes/sec :: BYER :{2} :: Total :{3} :: Errors :{4}' \
+    print('{0}::{1} bytes/sec :: BYER :{2} :: Total :{3} :: Errors :{4}' \
           ''.format(datetime.datetime.now(), throughput, byer,
                     total_recieved_bytes, total_error_bytes)
+          )
 
 
 def update_status():
@@ -89,23 +98,27 @@ def begin_prbs_test(layer2):
     global recieved_bytes
     global error_bytes
     global lprbs
+    if prbs is None:
+        print("PRBS library not found. Cannot perform PRBS test.")
+        return
     init_prbs()
     layer2.write('b')
     expected_char = prbs.lfsr_cGetNextByte(lprbs)
     sync = 0
-    print "Waiting for Sync"
+    print("Waiting for Sync")
     while not sync:
         char = layer2.read()
         if char == 'b':
             sync = 1
-            print "Synced"
+            print("Synced")
     global next_update
     next_update = time.time()
     update_status()
     while 1:
         char = layer2.read()
         if str(format(ord(char), '02x')) != str(format(expected_char, '02x')):
-            print "Received: " + str(ord(char)) + " ::Expected : " + str(expected_char)
+            print("Received: {0} :: Expected : {1}"
+                  "".format(ord(char), expected_char))
             error_bytes += 1
         recieved_bytes += 1
         expected_char = prbs.lfsr_cGetNextByte(lprbs)
@@ -119,21 +132,21 @@ def begin_throughput_test(layer2, cmd):
     layer2.write(cmd)
     expected_char = ord('0')
     sync = 0
-    print "Waiting for Sync"
+    print("Waiting for Sync")
     while not sync:
         char = layer2.read()
         if char == cmd:
             sync = 1
-            print "Synced"
+            print("Synced")
     global next_update
     next_update = time.time()
     update_status()
     while 1:
         char = layer2.read()
         if ord(char) != expected_char:
-            print "R:{0} E:{1} Nb: {2:>4} Ne:{3:>4}" \
+            print("R:{0} E:{1} Nb: {2:>4} Ne:{3:>4}" \
                   "".format(char, chr(expected_char),
-                            recieved_bytes, error_bytes)
+                            recieved_bytes, error_bytes))
             error_bytes += 1
         recieved_bytes += 1
         if expected_char is ord('Z'):
@@ -183,12 +196,12 @@ def begin_roundtrip_test(layer2, cmd):
     global error_bytes
     layer2.write(cmd)
     sync = 0
-    print "Waiting for Sync"
+    print ("Waiting for Sync")
     while not sync:
         char = layer2.read()
         if char == cmd:
             sync = 1
-            print "Synced"
+            print ("Synced")
     global next_update
     next_update = time.time()
     update_status()
@@ -197,9 +210,9 @@ def begin_roundtrip_test(layer2, cmd):
         layer2.write(test_strings[sidx])
         rstr = layer2.read(len(test_strings[sidx]))
         if rstr != test_strings[sidx]:
-            print "ERROR :: "
-            print rstr
-            print test_strings[sidx]
+            print ("ERROR :: ")
+            print (rstr)
+            print (test_strings[sidx])
             error_bytes += len(rstr)
         recieved_bytes += len(rstr)
         sidx += 1
@@ -216,6 +229,8 @@ def begin_modbus_test(port, baud, slaveaddress):
     # layer2.write(chr(0x01))
     # layer2.write(chr(0x09))
     # layer2.write(chr(0xDF))
+    if pytest is None:
+        print ('py.test is not installed. Cannot run modbus test.')
     os.chdir(os.path.join(LIBMODBUS_FOLDER, 'scaffold', 'tests', 'software'))
     port = os.path.relpath(port, '/dev')
     pytest.main(['-v', '--baud', baud, '--saddr', slaveaddress, '--port', port])
@@ -244,7 +259,7 @@ if __name__ == '__main__':
     while len(drain) == 1:
         drain = ser.read()
         i += 1
-    print "Drained {0} bytes".format(i)
+    print("Drained {0} bytes".format(i))
     ser.timeout = None
     if args.test == 'prbs':
         begin_prbs_test(ser)
@@ -257,4 +272,4 @@ if __name__ == '__main__':
     elif args.test == 'chunkedtrip':
         begin_roundtrip_test(ser, 'e')
     else:
-        print "{0} test is not implemented".format(args.test)
+        print("{0} test is not implemented".format(args.test))
