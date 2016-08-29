@@ -109,14 +109,8 @@ void iUsbInterruptHandler(void)
     }   
     switch (USBVECINT & 0x3f)
     {
-    case USBVECINT_NONE:
-        break;
     case USBVECINT_PWR_DROP:
         __no_operation();
-        break;
-    case USBVECINT_PLL_LOCK:
-        break;
-    case USBVECINT_PLL_SIGNAL:
         break;
     case USBVECINT_PLL_RANGE:
         if (wUsbEventMask & USB_CLOCK_FAULT_EVENT)
@@ -137,8 +131,6 @@ void iUsbInterruptHandler(void)
         {
             bWakeUp = USB_handleVbusOffEvent();
         }
-        break;
-    case USBVECINT_USB_TIMESTAMP:
         break;
     case USBVECINT_INPUT_ENDPOINT0:
         IEP0InterruptHandler();
@@ -175,47 +167,42 @@ void iUsbInterruptHandler(void)
         tEndPoint0DescriptorBlock.bOEPBCNT = EPBCNT_NAK;
         SetupPacketInterruptHandler();
         break;
-    case USBVECINT_STPOW_PACKET_RECEIVED:
-        break;
-    case USBVECINT_INPUT_ENDPOINT1:
-        break;
     case USBVECINT_INPUT_ENDPOINT2:
         //send saved bytes from buffer...
         bWakeUp = CdcToHostFromBuffer(CDC0_INTFNUM);
-        break;
-    case USBVECINT_INPUT_ENDPOINT3:
         break;
     case USBVECINT_INPUT_ENDPOINT4:
         //send saved bytes from buffer...
         bWakeUp = CdcToHostFromBuffer(CDC1_INTFNUM);
         break;
-    case USBVECINT_INPUT_ENDPOINT5:
-        break;
     case USBVECINT_INPUT_ENDPOINT6:
         //send saved bytes from buffer...
         bWakeUp = CdcToHostFromBuffer(CDC2_INTFNUM);
         break;
-    case USBVECINT_INPUT_ENDPOINT7:
-        break;
-    case USBVECINT_OUTPUT_ENDPOINT1:
-        break;
     case USBVECINT_OUTPUT_ENDPOINT2:
         //complete receive opereation - copy data to user buffer
         bWakeUp = CdcToBufferFromHost(CDC0_INTFNUM);
-    case USBVECINT_OUTPUT_ENDPOINT3:
-        break;
     case USBVECINT_OUTPUT_ENDPOINT4:
         //complete receive opereation - copy data to user buffer
         bWakeUp = CdcToBufferFromHost(CDC1_INTFNUM);
-        break;
-    case USBVECINT_OUTPUT_ENDPOINT5:
         break;
     case USBVECINT_OUTPUT_ENDPOINT6:
         //complete receive opereation - copy data to user buffer
         bWakeUp = CdcToBufferFromHost(CDC2_INTFNUM);
         break;
+    case USBVECINT_NONE:
+    case USBVECINT_PLL_LOCK:
+    case USBVECINT_PLL_SIGNAL:
+    case USBVECINT_USB_TIMESTAMP:
+    case USBVECINT_STPOW_PACKET_RECEIVED:
+    case USBVECINT_INPUT_ENDPOINT1:
+    case USBVECINT_INPUT_ENDPOINT3:
+    case USBVECINT_INPUT_ENDPOINT5:
+    case USBVECINT_INPUT_ENDPOINT7:
+    case USBVECINT_OUTPUT_ENDPOINT1:
+    case USBVECINT_OUTPUT_ENDPOINT3:
+    case USBVECINT_OUTPUT_ENDPOINT5:
     case USBVECINT_OUTPUT_ENDPOINT7:
-        break;
     default:
         break;
     }

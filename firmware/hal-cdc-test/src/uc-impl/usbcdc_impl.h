@@ -63,16 +63,10 @@ static inline uint8_t usbcdc_rellock(uint8_t intfnum, uint8_t token){
 }
 
 static inline uint8_t usbcdc_putc(uint8_t intfnum, uint8_t byte, uint8_t token, uint8_t handlelock){
-    uint8_t stat=1;
-    if (handlelock){
-        stat = usbcdc_reqlock(intfnum, 1, token);
-    }
-    if (stat){
-        stat = USBCDC_sendChar(intfnum, byte);
-        usbcdc_send_trigger(intfnum);
-        return stat;
-    }
-    return 0;
+    uint8_t stat;
+    stat = USBCDC_sendChar(intfnum, byte);
+    usbcdc_send_trigger(intfnum);
+    return stat;
 }
 
 static inline uint8_t usbcdc_write(uint8_t intfnum, void *buffer, uint8_t len, uint8_t token){

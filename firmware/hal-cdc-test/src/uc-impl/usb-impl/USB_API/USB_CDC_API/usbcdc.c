@@ -56,6 +56,9 @@ CdcReadBufferCtrl_t  CdcReadBufferCtrl[CDC_NUM_INTERFACES * 2];
 
 extern uint16_t wUsbEventMask;
 
+extern void *(*USB_TX_memcpy)(void * dest, const void * source, size_t count);
+extern void *(*USB_RX_memcpy)(void * dest, const void * source, size_t count);
+
 /*----------------------------------------------------------------------------+
  | Global Variables                                                            |
  +----------------------------------------------------------------------------*/
@@ -154,7 +157,7 @@ uint8_t USBCDC_getInterfaceStatus_SendAvailable(uint8_t intfNum)
     
     if (!(bFunctionSuspended) && (bEnumerationStatus == ENUMERATION_COMPLETE)){
         if (CdcWriteCtrl[intfNum].sCurrentInBuffer->bAvailable){
-            ret += (CdcWriteCtrl[intfNum].sCurrentInBuffer->pEnd - 
+            ret = (CdcWriteCtrl[intfNum].sCurrentInBuffer->pEnd - 
             CdcWriteCtrl[intfNum].sCurrentInBuffer->pNext);
             if (CdcWriteCtrl[intfNum].sNextInBuffer->bAvailable){
                 ret += EP_MAX_PACKET_SIZE_CDC;
@@ -202,7 +205,7 @@ uint8_t USBCDC_getInterfaceStatus_RecieveWaiting(uint8_t intfNum)
     
     if (!(bFunctionSuspended) && (bEnumerationStatus == ENUMERATION_COMPLETE)){     
         if (CdcReadCtrl[intfNum].sCurrentOutBuffer->bValid){
-            ret += CdcReadCtrl[intfNum].sCurrentOutBuffer->cLen;
+            ret = CdcReadCtrl[intfNum].sCurrentOutBuffer->cLen;
             if (CdcReadCtrl[intfNum].sNextOutBuffer->bValid){
                 ret += CdcReadCtrl[intfNum].sNextOutBuffer->cLen;
             }
@@ -306,12 +309,6 @@ static inline void USBCDC_acquireReadBuffer(CdcReadBufferCtrl_t* pBufferCtrl){
     pBufferCtrl->bValid = TRUE;
 }
 
-void USBCDC_sendTrigger(uint8_t intfNum)
-{
-    //trigger Endpoint Interrupt - to start send operation
-    USBIEPIFG |= CdcWriteCtrl[intfNum].mIntMask;
-}
-
 void USBCDC_sendFlush(uint8_t intfNum)
 {
     // Finalize the current in buffer, send it. Send zero packet if needed.
@@ -328,9 +325,10 @@ void USBCDC_sendFlush(uint8_t intfNum)
 
 uint8_t USBCDC_sendChar(uint8_t intfNum, uint8_t byte)
 {
-    if (CdcWriteCtrl[intfNum].sCurrentInBuffer->bAvailable){
-        *(CdcWriteCtrl[intfNum].sCurrentInBuffer->pNext++) = byte;
-        if (CdcWriteCtrl[intfNum].sCurrentInBuffer->pNext == CdcWriteCtrl[intfNum].sCurrentInBuffer->pEnd){
+    CdcWriteBufferCtrl_t * pBufferCtrl = CdcWriteCtrl[intfNum].sCurrentInBuffer;
+    if (pBufferCtrl->bAvailable){
+        *(pBufferCtrl->pNext++) = byte;
+        if (pBufferCtrl->pNext == pBufferCtrl->pEnd){
             USBCDC_commitWriteBuffer(intfNum);
         }
         return 0x01;
@@ -342,30 +340,41 @@ uint8_t USBCDC_sendChar(uint8_t intfNum, uint8_t byte)
 
 uint8_t USBCDC_sendBuffer(uint8_t intfNum, uint8_t * buffer, uint8_t len)
 {
-    uint8_t sent = 0x00;
-    if (CdcWriteCtrl[intfNum].sCurrentInBuffer->bAvailable){
+    uint8_t avail, t1len, t2len;
+    CdcWriteBufferCtrl_t * pBufferCtrl = CdcWriteCtrl[intfNum].sCurrentInBuffer;
+    if (pBufferCtrl->bAvailable){
         // Some space is in this present buffer
-        while (CdcWriteCtrl[intfNum].sCurrentInBuffer->pNext != 
-                CdcWriteCtrl[intfNum].sCurrentInBuffer->pEnd && sent < len){
-            *(CdcWriteCtrl[intfNum].sCurrentInBuffer->pNext++) = *(buffer++);
-            sent ++;
+        avail = pBufferCtrl->pEnd - pBufferCtrl->pNext;
+        if (avail >= len){
+            t1len = len;
         }
-        if (CdcWriteCtrl[intfNum].sCurrentInBuffer->pNext == CdcWriteCtrl[intfNum].sCurrentInBuffer->pEnd){
+        else{
+            t1len = avail;
+        }
+        memcpy((void *)pBufferCtrl->pNext, (void *)buffer, t1len);
+        pBufferCtrl->pNext += t1len;
+        len -= t1len;
+        if (pBufferCtrl->pNext == pBufferCtrl->pEnd){
             USBCDC_commitWriteBuffer(intfNum);
         }
-        if (sent == len || !(CdcWriteCtrl[intfNum].sCurrentInBuffer->bAvailable)){
-            return sent;
+        pBufferCtrl = CdcWriteCtrl[intfNum].sCurrentInBuffer;
+        if (!(len) || !(pBufferCtrl->bAvailable)){
+            // We're either done or the next buffer isn't free anyway.
+            return t1len;
         }
-        
-        while (CdcWriteCtrl[intfNum].sCurrentInBuffer->pNext != 
-                CdcWriteCtrl[intfNum].sCurrentInBuffer->pEnd && sent < len){
-            *(CdcWriteCtrl[intfNum].sCurrentInBuffer->pNext++) = *(buffer++);
-            sent ++;
+        avail = pBufferCtrl->pEnd - pBufferCtrl->pNext;
+        if (avail >= len){
+            t2len = len;
         }
-        if (CdcWriteCtrl[intfNum].sCurrentInBuffer->pNext == CdcWriteCtrl[intfNum].sCurrentInBuffer->pEnd){
+        else{
+            t2len = avail;
+        }
+        memcpy((void *)pBufferCtrl->pNext, (void *)(buffer + t1len), t2len);
+        pBufferCtrl->pNext += t2len;
+        if (pBufferCtrl->pNext == pBufferCtrl->pEnd){
             USBCDC_commitWriteBuffer(intfNum);
         }
-        return sent;
+        return (t1len + t2len);
     }
     else{
         return 0x00;
@@ -394,6 +403,7 @@ uint8_t USBCDC_recieveChar(uint8_t intfNum){
 }
 
 uint8_t USBCDC_recieveBuffer(uint8_t intfNum, uint8_t * buffer, uint8_t len){
+    // TODO Replace with memcpy version.
     uint8_t recieved = 0x00;
     if (CdcReadCtrl[intfNum].sCurrentOutBuffer->bValid){
         // Some data is in this present buffer

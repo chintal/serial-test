@@ -42,6 +42,7 @@ extern "C"
 #endif
     
 #include "../../descriptors.h"
+#include <msp430.h>
 
 
 #define USBCDC_SEND_STARTED             0x01
@@ -180,7 +181,14 @@ uint8_t USBCDC_getInterfaceStatus_Recieve(uint8_t intfNum, uint8_t* bReceivedWai
 uint8_t USBCDC_getInterfaceStatus (uint8_t intfNum, uint8_t* bSendAvailable, 
                                    uint8_t* bReceivedWaiting);
 
-void USBCDC_sendTrigger(uint8_t intfNum);
+static inline void USBCDC_sendTrigger(uint8_t intfNum);
+
+static inline void USBCDC_sendTrigger(uint8_t intfNum)
+{
+    //trigger Endpoint Interrupt - to start send operation
+    USBIEPIFG |= CdcWriteCtrl[intfNum].mIntMask;
+}
+
 
 void USBCDC_sendFlush(uint8_t intfNum);
 

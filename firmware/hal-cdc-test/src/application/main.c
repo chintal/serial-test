@@ -105,7 +105,7 @@ static void _bc_serial_test(void){
         gpio_set_output_high(BOARD_GREEN_LED_PORT, BOARD_GREEN_LED_PIN);
         i = '0';
         while(1){
-            while (!usbcdc_reqlock(BOARD_BCIFACE_INTFNUM, 1, 0x01));
+            while (!(CdcWriteCtrl[BOARD_BCIFACE_INTFNUM].sCurrentInBuffer->bAvailable));
             usbcdc_putc(BOARD_BCIFACE_INTFNUM, i, 0x01, 0x00);
             if (i != 'Z'){
                 i ++;
