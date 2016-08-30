@@ -182,6 +182,7 @@ void iUsbInterruptHandler(void)
     case USBVECINT_OUTPUT_ENDPOINT2:
         //complete receive opereation - copy data to user buffer
         bWakeUp = CdcToBufferFromHost(CDC0_INTFNUM);
+        break;
     case USBVECINT_OUTPUT_ENDPOINT4:
         //complete receive opereation - copy data to user buffer
         bWakeUp = CdcToBufferFromHost(CDC1_INTFNUM);

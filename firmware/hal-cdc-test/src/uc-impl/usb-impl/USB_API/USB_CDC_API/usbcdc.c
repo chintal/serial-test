@@ -362,7 +362,7 @@ uint8_t USBCDC_sendBuffer(uint8_t intfNum, uint8_t * buffer, uint8_t len)
             // We're either done or the next buffer isn't free anyway.
             return t1len;
         }
-        avail = pBufferCtrl->pEnd - pBufferCtrl->pNext;
+        avail = EP_MAX_PACKET_SIZE_CDC;
         if (avail >= len){
             t2len = len;
         }
