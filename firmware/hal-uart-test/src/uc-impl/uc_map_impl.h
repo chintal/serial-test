@@ -57,5 +57,16 @@
     #endif
 /**@}*/ 
 
+/**
+ * @name USB Configuration
+ */
+/**@{*/
+#if (uC_USBCDC_ENABLED + uC_USBHID_ENABLED + uC_USBMSC_ENABLED + uC_USBPHDC_ENABLED) > 0
+    #define uC_INCLUDE_USB_IFACE
+#endif
+/**@}*/ 
+
+
+
 
 #endif

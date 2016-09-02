@@ -311,11 +311,14 @@ static inline void USBCDC_acquireReadBuffer(CdcReadBufferCtrl_t* pBufferCtrl){
 
 void USBCDC_sendFlush(uint8_t intfNum)
 {
-    // Finalize the current in buffer, send it. Send zero packet if needed.
     if (CdcWriteCtrl[intfNum].sCurrentInBuffer->pNext == 
-            CdcWriteCtrl[intfNum].sCurrentInBuffer->pEnd)
-    {
-        //Send zero packet
+            CdcWriteCtrl[intfNum].sCurrentInBuffer->pStart){
+        // Last buffer was already committed. A zero packet needs to be sent. 
+        // Wait for a free send buffer to be available. 
+        while(!(CdcWriteCtrl[intfNum].sCurrentInBuffer->bAvailable));
+    }
+    else{
+        // Finalize the current in buffer, if it hasn't already been.
         ;
     }
     USBCDC_commitWriteBuffer(intfNum);
@@ -326,7 +329,10 @@ void USBCDC_sendFlush(uint8_t intfNum)
 uint8_t USBCDC_sendChar(uint8_t intfNum, uint8_t byte)
 {
     CdcWriteBufferCtrl_t * pBufferCtrl = CdcWriteCtrl[intfNum].sCurrentInBuffer;
-    if (pBufferCtrl->bAvailable){
+    // Caller is expected to make sure there is enough room. 
+    // We're not checking again here.
+    // if (pBufferCtrl->bAvailable){
+    if(TRUE){
         *(pBufferCtrl->pNext++) = byte;
         if (pBufferCtrl->pNext == pBufferCtrl->pEnd){
             USBCDC_commitWriteBuffer(intfNum);
@@ -340,41 +346,49 @@ uint8_t USBCDC_sendChar(uint8_t intfNum, uint8_t byte)
 
 uint8_t USBCDC_sendBuffer(uint8_t intfNum, uint8_t * buffer, uint8_t len)
 {
-    uint8_t avail, t1len, t2len;
+    uint8_t avail, t1len;
     CdcWriteBufferCtrl_t * pBufferCtrl = CdcWriteCtrl[intfNum].sCurrentInBuffer;
-    if (pBufferCtrl->bAvailable){
+    // Caller is expected to make sure there is enough room. 
+    // We're not checking again here.
+    // if (pBufferCtrl->bAvailable){
+    if (TRUE){
+        
         // Some space is in this present buffer
         avail = pBufferCtrl->pEnd - pBufferCtrl->pNext;
-        if (avail >= len){
-            t1len = len;
-        }
-        else{
-            t1len = avail;
-        }
+        t1len = (avail >= len) ? len : avail;
+        
         memcpy((void *)pBufferCtrl->pNext, (void *)buffer, t1len);
         pBufferCtrl->pNext += t1len;
+        
         len -= t1len;
         if (pBufferCtrl->pNext == pBufferCtrl->pEnd){
             USBCDC_commitWriteBuffer(intfNum);
         }
-        pBufferCtrl = CdcWriteCtrl[intfNum].sCurrentInBuffer;
-        if (!(len) || !(pBufferCtrl->bAvailable)){
-            // We're either done or the next buffer isn't free anyway.
+        
+        if (!(len)){
             return t1len;
         }
-        avail = EP_MAX_PACKET_SIZE_CDC;
-        if (avail >= len){
-            t2len = len;
-        }
-        else{
-            t2len = avail;
-        }
-        memcpy((void *)pBufferCtrl->pNext, (void *)(buffer + t1len), t2len);
-        pBufferCtrl->pNext += t2len;
+        
+        pBufferCtrl = CdcWriteCtrl[intfNum].sCurrentInBuffer;
+        // Caller is expected to make sure there is enough room. 
+        // We're not checking again here.
+        //if (!(pBufferCtrl->bAvailable)){
+            // The next buffer isn't free anyway.
+            // This condition should not actually occur.
+            //return t1len;
+        //}
+        
+        //avail = EP_MAX_PACKET_SIZE_CDC;
+        //t2len = (avail >= len) ? len : avail;
+        
+        memcpy((void *)pBufferCtrl->pNext, (void *)(buffer + t1len), len);
+        pBufferCtrl->pNext += len;
+        
         if (pBufferCtrl->pNext == pBufferCtrl->pEnd){
             USBCDC_commitWriteBuffer(intfNum);
         }
-        return (t1len + t2len);
+        
+        return (t1len + len);
     }
     else{
         return 0x00;

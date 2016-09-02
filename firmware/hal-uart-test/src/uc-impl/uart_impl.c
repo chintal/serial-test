@@ -213,7 +213,7 @@ void uart_init(uint8_t intfnum){
     (*_uart_init_func[intfnum])();
 }
 
-uint8_t uart_vprintf_buf(uint8_t intfnum, const char *format, va_list * args){
+uint8_t uart_vprintf(uint8_t intfnum, const char *format, va_list * args){
         uint8_t stat, lstat;
         stat = bytebuf_cPushReqBlindLock(uart_if[intfnum]->txbuf, BYTEBUF_TOKEN_PRINT);
         if (stat){

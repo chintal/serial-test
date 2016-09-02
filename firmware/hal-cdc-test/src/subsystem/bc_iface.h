@@ -83,7 +83,7 @@
     static inline void bc_discard_rxb(void);
 
     #if BOARD_BCIFACE_TYPE == BCI_UART
-        
+    	
         static inline void bc_init(void){
             uart_init(BOARD_BCIFACE_INTFNUM);
         }    

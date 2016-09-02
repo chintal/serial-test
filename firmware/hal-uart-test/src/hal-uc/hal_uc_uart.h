@@ -1,6 +1,6 @@
 /* 
-   Copyright 2015 Quazar Technologies Pvt. Ltd.
-   Copyright 2015 Chintalagiri Shashank
+   Copyright (c)
+     (c) 2015-2016 Chintalagiri Shashank, Quazar Technologies Pvt. Ltd.
     
    This file is part of
    Embedded bootstraps : hal-uC
@@ -79,6 +79,7 @@ void uart_init(uint8_t intfnum);
  */
 static inline void uart_send_trigger(uint8_t intfnum);
 
+static inline void uart_send_flush(uint8_t intfnum);
 
 static inline uint8_t uart_reqlock(uint8_t intfnum, uint8_t len, uint8_t token);
 
@@ -132,7 +133,7 @@ static inline uint8_t uart_write(uint8_t intfnum, void *buffer, uint8_t len, uin
  * 
  * @see uart_send_trigger()
  */
-uint8_t uart_vprintf_buf(uint8_t intfnum, const char *format, va_list *args);
+uint8_t uart_vprintf(uint8_t intfnum, const char *format, va_list *args);
 
 
 /**

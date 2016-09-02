@@ -62,8 +62,8 @@ extern "C"
 #define USBCDC_RECIEVE_WAITING          0x04
 #define USBCDC_RECIEVE_AVAILABLE        0x10
 #define USBCDC_BUS_NOT_AVAILABLE        0x08
-    
 
+    
 typedef struct CDC_WRITE_BUFFER_CTRL_t{
     uint8_t * pStart;
     uint8_t * pNext;

@@ -76,6 +76,7 @@
     */
     /**@{*/ 
     #define BCI_UART                  1
+    #define BCI_USBCDC                2
     /**@}*/ 
     /**
     * @name Backchannel Interface Configuration
