@@ -80,7 +80,7 @@ static void _bc_serial_test(void){
         // data may present similar if not narrower bottlenecks.
         
         // Intialize PRBS generator
-        lfsr_vInit(&prbs, LFSR_DEFAULT_SEED, LFSR_DEFAULT_TAPS);
+        lfsr16_vInit(&prbs, LFSR_DEFAULT_SEED, LFSR_DEFAULT_TAPS);
         if(bc_reqlock(1, BYTEBUF_TOKEN_SCHAR)){
             bc_putc('b', BYTEBUF_TOKEN_SCHAR, 0);
         }
@@ -88,7 +88,7 @@ static void _bc_serial_test(void){
         gpio_set_output_high(BOARD_GREEN_LED_PORT, BOARD_GREEN_LED_PIN);
         while(1){
             if(bc_reqlock(1, BYTEBUF_TOKEN_SCHAR)){
-                bc_putc(lfsr_cGetNextByte(&prbs), BYTEBUF_TOKEN_SCHAR, 0);
+                bc_putc(lfsr16_cGetNextByte(&prbs), BYTEBUF_TOKEN_SCHAR, 0);
             }
             deferred_exec();
         }
